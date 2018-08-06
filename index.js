@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types'
 
 import {
   StyleSheet,
@@ -7,8 +8,6 @@ import {
   DeviceEventEmitter,
   ActivityIndicator
 } from 'react-native';
-
-import PropTypes from 'prop-types';
 
 const styles = StyleSheet.create({
   container: {
@@ -50,31 +49,11 @@ const styles = StyleSheet.create({
   }
 });
 
-class BusyIndicator extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isVisible: props.startVisible
-    };
-  }
-
-  componentDidMount () {
-    this.emitter = DeviceEventEmitter.addListener('changeLoadingEffect', this.changeLoadingEffect.bind(this));
-  }
-
-  componentWillUnmount() {
-    this.emitter.remove();
-  }
-
-  changeLoadingEffect(state) {
-    this.setState({
-      isVisible: state.isVisible,
-      text: state.title ? state.title : this.props.text
-    });
-  }
+class BusyIndicator extends Component {
 
   render() {
-    if (!this.state.isVisible) {
+    const { isVisible, text } = this.props
+    if (!isVisible) {
       return (<View style={styles.nocontainer} />);
     }
 
@@ -90,7 +69,6 @@ class BusyIndicator extends React.Component {
         fontSize: this.props.textFontSize
       }
     });
-
     return (
       <View style={styles.container}>
         <View style={[styles.overlay, customStyles.overlay]}>
@@ -98,12 +76,15 @@ class BusyIndicator extends React.Component {
             color={this.props.color}
             size={this.props.size}
             style={styles.progressBar} />
-
-          <Text
-            numberOfLines={this.props.textNumberOfLines}
-            style={[styles.text, customStyles.text]}>
-            {this.state.text}
-          </Text>
+          {
+            text
+              ? <Text
+                  numberOfLines={this.props.textNumberOfLines}
+                  style={[styles.text, customStyles.text]}>
+                  {text}
+                </Text>
+              : null
+          }
         </View>
       </View>
     );
@@ -113,10 +94,10 @@ class BusyIndicator extends React.Component {
 BusyIndicator.propTypes = {
   color: PropTypes.string,
   overlayColor: PropTypes.string,
-  overlayHeight: PropTypes.number,
-  overlayWidth: PropTypes.number,
+  overlayHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  overlayWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   size: PropTypes.oneOf(['small', 'large']),
-  startVisible: PropTypes.bool,
+  isVisible: PropTypes.bool,
   text: PropTypes.string,
   textColor: PropTypes.string,
   textFontSize: PropTypes.number,
@@ -130,8 +111,8 @@ BusyIndicator.defaultProps = {
   overlayColor: '#333333',
   color: '#f5f5f5',
   size: 'small',
-  startVisible: false,
-  text: 'Please wait...',
+  isVisible: false,
+  text: '',
   textColor: '#f5f5f5',
   textFontSize: 14,
   textNumberOfLines: 1
