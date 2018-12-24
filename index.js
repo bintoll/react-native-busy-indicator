@@ -54,7 +54,7 @@ class BusyIndicator extends Component {
   render() {
     const { isVisible, text } = this.props
     if (!isVisible) {
-      return (<View style={styles.nocontainer} />);
+      return (null);
     }
 
     const customStyles = StyleSheet.create({
